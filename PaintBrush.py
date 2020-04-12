@@ -2,80 +2,128 @@ from PIL import Image
 import numpy as np
 
 from Brush import clump as c_clump, smooth as c_smooth
-from Canvas import Canvas
 
 
-class PaintBrush:
+def paint(file_path: str = None,
+          pixels: list = None,
+          output_path: str = None,
+          alpha: float = 3,
+          radius: int = 2) -> list:
     """
-    Applies effects to a Canvas. Currently supported 
-    effects include clumping and smoothing, to create 
-    some kind of effect I'm not quite sure how to 
-    describe just yet (depends on the image really).
+    Applies both the clumping and smoothing effects on the
+    given pixels. If the file_path is given, the pixels of
+    the file are used. Specifying the output_path saves the 
+    resulting pixel data to the path.
+    
+    Args:
+        file_path: the path of the input image
+        pixels: 2d list of pixel values
+        output_path: path to save the resulting image to
+        alpha: color variation threshold
+        radius: the blur radius
+
+    Returns:
+        list: the new, resulting pixels
     """
 
-    def __init__(self, canvas=None):
-        """
-        Creates a PaintBrush for the given Canvas
-        """
-        if not isinstance(canvas, Canvas):
-            canvas = None
-        self.canvas = canvas
+    # load in pixels from file
+    if file_path is not None:
+        pixels = _load_img_data(file_path)
+
+    # apply both effects
+    pixels = _paint(pixels, alpha, radius)
+
+    # save to file if path is specified
+    if output_path:
+        _save_img_data(pixels, output_path)
+    return pixels
+
+
+def _load_img_data(file_path: str) -> list:
+    """
+    Opens the image at the file path and returns an
+    array of the pixel values by width/height.
+
+    Args:
+        file_path: the path of the input image
+
+    Returns:
+        A 2d list of the pixel values
+    """
+    img = Image.open(file_path)
+    _, height = img.size
+    pixels = img.getdata()
+    # split flat list into chunks respecting img dimensions
+    chunk = np.array_split
+    return [c.tolist() for c in chunk(pixels, height)]
+
+
+def _save_img_data(pixels: list, output_path: str) -> None:
+    """
+    Saves pixel data as a PNG image.
+    Note: only supports .png format for now.
+
+    Args:
+        pixels: list of pixel values to save
+        output_path: path of saved file
+    """
+    data = np.array(pixels, dtype=np.uint8)
+    output = Image.fromarray(data, 'RGB')
+    output.save(output_path, 'PNG')
+    return
+
+
+def _paint(pixels: list, alpha: float, radius: int) -> list:
+    """
+    Applies both the clumping and smoothing effects
+    on the given pixel set
+
+    Args:
+        pixels: list of image pixel values
+        alpha: threshold of color variation allowed
+        radius: blur radius of Median Filter
     
-    @property
-    def canvas(self):
-        """
-        This PaintBrush's canvas to operate on
-        """
-        return self._canvas
+    Returns:
+        The resulting pixel values
+    """
+    dim = (len(pixels[0]), len(pixels))
+
+    # apply both effects in succession
+    pixels = clump(pixels, dim, alpha)
+    return smooth(pixels, dim, radius)
+
+
+def clump(pixels: list, dim: tuple, alpha: float) -> list:
+    """
+    Sets adjacent, similar colored pixels to the same color.
+    Creates a clumped, flattened out effect on the image. 
+    Implemented in cython for performance (see Brush.pyx)
+
+    Args:
+        pixels: list of image pixel values
+        dim: width/height pair of pixels
+        alpha: threshold of color variation
     
-    @canvas.setter
-    def canvas(self, new_canvas):
-        """
-        Updates this canvas
-        """
-        self._canvas = new_canvas
+    Returns:
+        The resulting pixel values
+    """
+    return c_clump(pixels, dim, alpha)
+
+
+def smooth(pixels: list, dim: tuple, radius: int) -> list:
+    """
+    Smooths out jagged, pixelated edges in the pixels
+    by applying a Median Filter. Implemented in
+    cython for performance (see Brush.pyx)
+
+    Args:
+        pixels: list of image pixel values
+        dim: width/height pair of pixels
+        radius: blur radius of Median Filter
     
-    def paint(self, output_path, alpha, radius):
-        """
-        Applies both the clumping and smoothing effects
-        on the current canvas. Uses the given alpha and 
-        radius values for the effects. Saves the resulting 
-        image to the output path
-        """
-        if not self.canvas:
-            raise AttributeError('no Canvas exists for this paint brush')
-
-        # use img properties of canvas
-        img_pixels = self.canvas.pixels
-        img_dim = self.canvas.dim
-
-        # apply both effects in succession
-        pixels = self.clump(img_pixels, img_dim, alpha)
-        pixels = self.smooth(pixels, img_dim, radius)
-
-        # save the resulting pixel data as a .png image
-        # TODO: move saving functionality to Canvas
-        data = np.array(pixels, dtype=np.uint8)
-        output = Image.fromarray(data, 'RGB')
-
-        output.save(output_path, 'PNG')
-        return
-    
-    def clump(self, pixels, dim, alpha):
-        """
-        Groups pixels close together and similar in color, 
-        setting them all to the same color. Creates a 
-        clumped, flattened out effect on the image. 
-        Implemented in cython for performance (see Brush.pyx)
-        """
-        return c_clump(pixels, dim, alpha)
-
-    def smooth(self, pixels, dim, radius):
-        """
-        Smooths out jagged, pixelated edges in the pixels
-        by applying a Median Filter. Implemented in
-        cython for performance (see Brush.pyx)
-        """
-        return c_smooth(pixels, dim, radius)
+    Returns:
+        The resulting pixel values
+    """
+    return c_smooth(pixels, dim, radius)
    
 
