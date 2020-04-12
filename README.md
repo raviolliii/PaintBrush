@@ -3,7 +3,10 @@
 Applies a customizable, modern flat water color type effect on images (I'm not quite sure how to describe it just yet).
 
 
-![image comparison](assets/side_view.png)
+<div style="display: flex; justify-content: space-between">
+    <img src="assets/weeknd.jpg" width="49%">
+    <img src="assets/weeknd_results.png" width="49%">
+</div>
 
 
 ### Current Usage
@@ -18,13 +21,13 @@ Use the `main.py` file
 
 The effect is created with a two part process
 1. Group pixels similar in color together
-    1. An `alpha` value (`float`) determines how much colors can vary to be considered "similar". `0` will not blend any colors together while something like `12` will blend together colors that are way different
+    1. An `alpha` value (`float`) determines how much colors can vary to be considered "similar". `0` will not blend any colors together while something like `70` will blend together colors that are way different
 2. Smooth out the jagged edges
     1. A `radius` value (`int`) determines how smoothed out the edges are
 
 `python3 <input_img_path> <output_img_path> <alpha> <radius>`
 
-Ex. `python3 assets/city.jpg assets/city_result.png 4 3`
+Ex. `python3 assets/weeknd.jpg assets/weeknd_results.png 36 7`
 
 (creates the resulting image above)
 
