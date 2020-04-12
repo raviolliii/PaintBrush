@@ -249,15 +249,11 @@ cpdef float diff(list c1, list c2):
     """
     Finds the difference between two RGB values.
     Value is the Euclidean Distance between the 
-    colors' YUV equivalents (YUV seems to be a 
-    better scale to quantify the difference between
-    two colors than RGB)
+    colors' RGB channels.
     """
-    cdef list y1, y2
-    cdef int d1, d2
+    cdef int d1, d2, d3
 
-    y1 = to_yuv(c1)
-    y2 = to_yuv(c2)
-    d1 = (y1[0] - y2[0]) ** 2
-    d2 = (y1[1] - y2[1]) ** 2
-    return sqrt(d1 + d2)
+    d1 = (c1[0] - c2[0]) ** 2
+    d2 = (c1[1] - c2[1]) ** 2
+    d3 = (c1[2] - c2[2]) ** 2
+    return sqrt(d1 + d2 + d3)
