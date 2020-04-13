@@ -11,6 +11,8 @@ Applies a customizable, modern flat water color type effect on images (I'm not q
 
 ### Current Usage
 
+**NOTE:** As of right now, it only works on `jpg` images and will output `png` images. I wanted to use this as a learning experience more than anything else, which is why I didn't use any existing packages too extensively, and processing images (especially larger ones) take some time.
+
 Still a WIP but if you want to test it out on images, the quickest way is to use `main.py`, which takes command line arguments to test. Part of the project is built in cython, so you'll have to build the file for your machine first (maybe you don't need to, I'm stil figuring out the whole cython thing - also the build file is not included in git yet).
 
 Build the cython file
@@ -30,5 +32,3 @@ The effect is created with a two part process
 Ex. `python3 assets/weeknd.jpg assets/weeknd_results.png 36 7`
 
 (creates the resulting image above)
-
-**NOTE:** As of right now, it only works on `jpg` images and will output `png` images.
