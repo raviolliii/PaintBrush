@@ -27,8 +27,8 @@ The effect is created with a two part process
 2. Smooth out the jagged edges
     1. A `radius` value (`int`) determines how smoothed out the edges are
 
-`python3 <input_img_path> <output_img_path> <alpha> <radius>`
+`python3 main.py <input_img_path> <output_img_path> <alpha> <radius>`
 
-Ex. `python3 assets/weeknd.jpg assets/weeknd_results.png 36 7`
+Ex. `python3 main.py assets/weeknd.jpg assets/weeknd_results.png 36 7`
 
 (creates the resulting image above)
